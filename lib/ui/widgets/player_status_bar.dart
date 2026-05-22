@@ -17,6 +17,7 @@ class PlayerStatusBar extends StatelessWidget {
     required this.isLocalPlayersTurn,
     required this.canRoll,
     required this.rowSlots,
+    required this.onRoll,
   }) : assert(rowSlots.length == 2);
 
   final GameState state;
@@ -26,6 +27,7 @@ class PlayerStatusBar extends StatelessWidget {
   final bool isLocalPlayersTurn;
   final bool canRoll;
   final List<int> rowSlots;
+  final VoidCallback onRoll;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +71,7 @@ class PlayerStatusBar extends StatelessWidget {
       diceValue: player != null && isCurrent ? diceValue : null,
       accent: player?.color.color ?? const Color(0xFF90A4AE),
       canRoll: player != null && isCurrent && isLocalPlayersTurn && canRoll,
+      onRoll: onRoll,
     );
 
     return SizedBox(
@@ -291,6 +294,7 @@ class _DiceDock extends StatelessWidget {
     required this.diceValue,
     required this.accent,
     required this.canRoll,
+    required this.onRoll,
   });
 
   final bool isActive;
@@ -298,6 +302,7 @@ class _DiceDock extends StatelessWidget {
   final int? diceValue;
   final Color accent;
   final bool canRoll;
+  final VoidCallback onRoll;
 
   @override
   Widget build(BuildContext context) {
@@ -320,42 +325,45 @@ class _DiceDock extends StatelessWidget {
       );
     }
 
-    return Container(
-      width: 56,
-      height: 56,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: canRoll
-            ? accent.withValues(alpha: 0.45)
-            : const Color(0x55FFFFFF),
-        border: Border.all(
-          color: canRoll ? Colors.white : const Color(0xB0FFFFFF),
-          width: canRoll ? 2 : 1.2,
-        ),
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-            color: accent.withValues(alpha: canRoll ? 0.38 : 0.2),
-            blurRadius: canRoll ? 10 : 4,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onTap: canRoll ? onRoll : null,
+      child: Container(
+        width: 56,
+        height: 56,
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: canRoll
+              ? accent.withValues(alpha: 0.45)
+              : const Color(0x55FFFFFF),
+          border: Border.all(
+            color: canRoll ? Colors.white : const Color(0xB0FFFFFF),
+            width: canRoll ? 2 : 1.2,
           ),
-        ],
-      ),
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(begin: 0, end: isRolling ? 1 : 0),
-        duration: const Duration(milliseconds: 420),
-        builder: (BuildContext context, double value, Widget? child) {
-          final double angle = value * (math.pi * 2);
-          return Transform.rotate(
-            angle: angle,
-            child: Transform.scale(scale: 1 + (value * 0.06), child: child),
-          );
-        },
-        child: DiceFace(
-          value: diceValue,
-          size: 48,
-          accent: accent,
-          showQuestionWhenNull: true,
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: accent.withValues(alpha: canRoll ? 0.38 : 0.2),
+              blurRadius: canRoll ? 10 : 4,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0, end: isRolling ? 1 : 0),
+          duration: const Duration(milliseconds: 420),
+          builder: (BuildContext context, double value, Widget? child) {
+            final double angle = value * (math.pi * 2);
+            return Transform.rotate(
+              angle: angle,
+              child: Transform.scale(scale: 1 + (value * 0.06), child: child),
+            );
+          },
+          child: DiceFace(
+            value: diceValue,
+            size: 48,
+            accent: accent,
+            showQuestionWhenNull: true,
+          ),
         ),
       ),
     );
