@@ -216,7 +216,7 @@ class GameScreen extends StatelessWidget {
             isRolling: state.isRolling,
             isLocalPlayersTurn: controller.isLocalPlayersTurn,
             canRoll: controller.canRoll,
-            rowSlots: const <int>[2, 3],
+            rowSlots: const <int>[3, 2],
             onRoll: controller.rollDice,
           ),
         ],

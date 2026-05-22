@@ -51,10 +51,16 @@ class PlayerStatusBar extends StatelessWidget {
         : null;
     final bool isCurrent = slot == state.currentTurnIndex;
     final bool isLocal = slot == localPlayerIndex;
-    final bool diceOnLeft = slot == 0 || slot == 2;
+    final bool diceOnLeft = slot == 0 || slot == 3;
     final int finished = player == null
         ? 0
         : player.pawns.where((Pawn pawn) => pawn.isFinished).length;
+
+    final Color normalColor = player?.color.color ?? const Color(0xFF90A4AE);
+    Color diceColor = normalColor;
+    if (state.players.length == 2 && player?.color == PlayerColor.yellow) {
+      diceColor = PlayerColor.green.color;
+    }
 
     final Widget card = player == null
         ? const _PlayerPlaceholder()
@@ -63,19 +69,20 @@ class PlayerStatusBar extends StatelessWidget {
             finished: finished,
             isCurrent: isCurrent,
             isLocal: isLocal,
+            accentColor: normalColor,
           );
 
     final Widget dice = _DiceDock(
       isActive: player != null && isCurrent,
       isRolling: player != null && isCurrent && isRolling,
       diceValue: player != null && isCurrent ? diceValue : null,
-      accent: player?.color.color ?? const Color(0xFF90A4AE),
+      accent: diceColor,
       canRoll: player != null && isCurrent && isLocalPlayersTurn && canRoll,
       onRoll: onRoll,
     );
 
     return SizedBox(
-      height: 114,
+      height: 90,
       child: Row(
         children: diceOnLeft
             ? <Widget>[dice, const SizedBox(width: 8), Expanded(child: card)]
@@ -91,12 +98,14 @@ class _PlayerCard extends StatefulWidget {
     required this.finished,
     required this.isCurrent,
     required this.isLocal,
+    required this.accentColor,
   });
 
   final Player player;
   final int finished;
   final bool isCurrent;
   final bool isLocal;
+  final Color accentColor;
 
   @override
   State<_PlayerCard> createState() => _PlayerCardState();
@@ -145,11 +154,13 @@ class _PlayerCardState extends State<_PlayerCard>
 
   @override
   Widget build(BuildContext context) {
-    final Color accent = widget.player.color.color;
+    final Color accent = widget.accentColor;
     final bool darkText = accent.computeLuminance() > 0.5;
     final Color textColor = darkText ? const Color(0xFF172B3A) : Colors.white;
     final Color subtitleColor = textColor.withValues(alpha: 0.9);
     final int score = widget.finished * 100;
+
+    final int colorIndex = widget.player.color.index;
 
     return AnimatedBuilder(
       animation: _pulseController,
@@ -160,7 +171,7 @@ class _PlayerCardState extends State<_PlayerCard>
           scale: widget.isCurrent ? 1 + (pulse * 0.02) : 1,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 230),
-            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
@@ -189,23 +200,24 @@ class _PlayerCardState extends State<_PlayerCard>
             child: Row(
               children: <Widget>[
                 Container(
-                  width: 38,
-                  height: 38,
+                  width: 32,
+                  height: 32,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: Colors.white.withValues(alpha: 0.88),
-                    border: Border.all(color: Colors.white, width: 1.8),
+                    border: Border.all(color: Colors.white, width: 1.5),
                   ),
                   child: Icon(
-                    _avatars[widget.player.color.index % _avatars.length],
-                    size: 22,
+                    _avatars[colorIndex % _avatars.length],
+                    size: 18,
                     color: accent,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Row(
                         children: <Widget>[
@@ -217,7 +229,7 @@ class _PlayerCardState extends State<_PlayerCard>
                               style: TextStyle(
                                 color: textColor,
                                 fontWeight: FontWeight.w900,
-                                fontSize: 19,
+                                fontSize: 15,
                                 shadows: const <Shadow>[
                                   Shadow(
                                     color: Color(0x55000000),
@@ -232,25 +244,25 @@ class _PlayerCardState extends State<_PlayerCard>
                             Icon(
                               Icons.person_rounded,
                               color: textColor,
-                              size: 16,
+                              size: 14,
                             ),
                         ],
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 2),
                       Text(
                         'Maison : ${widget.finished}/4',
                         style: TextStyle(
                           color: subtitleColor,
                           fontWeight: FontWeight.w700,
-                          fontSize: 14,
+                          fontSize: 12,
                         ),
                       ),
-                      const SizedBox(height: 1),
+                      const SizedBox(height: 2),
                       Row(
                         children: <Widget>[
                           Icon(
                             Icons.stars_rounded,
-                            size: 14,
+                            size: 12,
                             color: textColor.withValues(alpha: 0.92),
                           ),
                           const SizedBox(width: 4),
@@ -259,17 +271,6 @@ class _PlayerCardState extends State<_PlayerCard>
                             style: TextStyle(
                               color: subtitleColor,
                               fontWeight: FontWeight.w700,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            widget.isCurrent ? 'Tour en cours' : 'En attente',
-                            style: TextStyle(
-                              color: textColor,
-                              fontWeight: widget.isCurrent
-                                  ? FontWeight.w900
-                                  : FontWeight.w700,
                               fontSize: 11,
                             ),
                           ),
@@ -376,7 +377,6 @@ class _PlayerPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 112,
       decoration: BoxDecoration(
         color: const Color(0x22000000),
         borderRadius: BorderRadius.circular(18),

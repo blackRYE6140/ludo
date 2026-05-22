@@ -11,8 +11,14 @@ class LocalGameService {
     required GameStatus status,
     List<String>? playerNames,
   }) {
-    final List<PlayerColor> activeColors =
-        PlayerColor.values.take(playerCount).toList(growable: false);
+    final List<PlayerColor> activeColors;
+    if (playerCount == 2) {
+      activeColors = <PlayerColor>[PlayerColor.red, PlayerColor.yellow];
+    } else if (playerCount == 3) {
+      activeColors = <PlayerColor>[PlayerColor.red, PlayerColor.green, PlayerColor.yellow];
+    } else {
+      activeColors = <PlayerColor>[PlayerColor.red, PlayerColor.green, PlayerColor.yellow, PlayerColor.blue];
+    }
 
     final List<Player> players = <Player>[];
     for (int i = 0; i < activeColors.length; i++) {

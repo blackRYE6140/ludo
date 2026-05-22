@@ -110,7 +110,7 @@ class _LudoBoardState extends State<LudoBoard> {
                   CustomPaint(
                     size: Size(boardSize, boardSize),
                     painter: _BoardPainter(
-                      activeTurn: widget.state.currentPlayer.color,
+                      activeTurnColor: widget.state.currentPlayer.color.color,
                     ),
                   ),
                   for (final _PawnRenderData pawn in pawns)
@@ -449,11 +449,11 @@ class _PawnPieceState extends State<_PawnPiece>
 }
 
 class _BoardPainter extends CustomPainter {
-  _BoardPainter({required this.activeTurn});
+  _BoardPainter({required this.activeTurnColor});
 
   static const double frameFraction = 0.05;
 
-  final PlayerColor activeTurn;
+  final Color activeTurnColor;
 
   static const Color _frameLight = Color(0xFFF3B182);
   static const Color _frameDark = Color(0xFF945029);
@@ -825,7 +825,7 @@ class _BoardPainter extends CustomPainter {
     final Paint paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = inner.width * 0.01
-      ..color = activeTurn.color.withValues(alpha: 0.63);
+      ..color = activeTurnColor.withValues(alpha: 0.63);
 
     canvas.drawRRect(
       RRect.fromRectAndRadius(inner, Radius.circular(inner.width * 0.01)),
@@ -905,6 +905,6 @@ class _BoardPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _BoardPainter oldDelegate) {
-    return oldDelegate.activeTurn != activeTurn;
+    return oldDelegate.activeTurnColor != activeTurnColor;
   }
 }
