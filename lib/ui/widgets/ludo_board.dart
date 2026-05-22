@@ -620,7 +620,35 @@ class _BoardPainter extends CustomPainter {
   }
 
   void _fillZone(Canvas canvas, Rect rect, Color color) {
+    // Base quadrant background
     canvas.drawRect(rect, Paint()..color = color);
+
+    // Inner prison area
+    final double cell = rect.width / 6;
+    final Rect innerRect = rect.deflate(cell * 0.9);
+    final RRect rrect = RRect.fromRectAndRadius(innerRect, Radius.circular(cell * 0.6));
+    
+    final Color darkerColor = Color.lerp(color, Colors.black, 0.2)!;
+
+    canvas.drawRRect(rrect, Paint()..color = darkerColor);
+
+    // Debossed edge effect
+    canvas.drawRRect(
+      rrect,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2.0
+        ..color = Colors.black.withValues(alpha: 0.15),
+    );
+    canvas.drawRRect(
+      rrect.deflate(2.0),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.5
+        ..color = Colors.white.withValues(alpha: 0.2),
+    );
+
+    // Overall quadrant lighting
     canvas.drawRect(
       rect,
       Paint()
@@ -868,8 +896,25 @@ class _BoardPainter extends CustomPainter {
     for (int i = 0; i <= BoardConstants.boardSize; i++) {
       final double x = inner.left + (i * cell);
       final double y = inner.top + (i * cell);
-      canvas.drawLine(Offset(x, inner.top), Offset(x, inner.bottom), stroke);
-      canvas.drawLine(Offset(inner.left, y), Offset(inner.right, y), stroke);
+
+      if (i > 0 && i < 6 || i > 9 && i < 15) {
+        // Vertical lines in the left/right sections
+        canvas.drawLine(
+          Offset(x, inner.top + 6 * cell),
+          Offset(x, inner.top + 9 * cell),
+          stroke,
+        );
+        // Horizontal lines in the top/bottom sections
+        canvas.drawLine(
+          Offset(inner.left + 6 * cell, y),
+          Offset(inner.left + 9 * cell, y),
+          stroke,
+        );
+      } else {
+        // Full lines for borders and center cross
+        canvas.drawLine(Offset(x, inner.top), Offset(x, inner.bottom), stroke);
+        canvas.drawLine(Offset(inner.left, y), Offset(inner.right, y), stroke);
+      }
     }
   }
 
