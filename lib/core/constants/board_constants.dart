@@ -4,8 +4,8 @@ import '../../models/player.dart';
 
 @immutable
 class GridPosition {
-  final int row;
-  final int col;
+  final double row;
+  final double col;
 
   const GridPosition(this.row, this.col);
 
@@ -112,28 +112,28 @@ class BoardConstants {
   static const Map<PlayerColor, List<GridPosition>> yardPositions =
       <PlayerColor, List<GridPosition>>{
     PlayerColor.red: <GridPosition>[
-      GridPosition(2, 2),
-      GridPosition(2, 4),
-      GridPosition(4, 2),
-      GridPosition(4, 4),
+      GridPosition(1.5, 1.5),
+      GridPosition(1.5, 3.5),
+      GridPosition(3.5, 1.5),
+      GridPosition(3.5, 3.5),
     ],
     PlayerColor.green: <GridPosition>[
-      GridPosition(2, 10),
-      GridPosition(2, 12),
-      GridPosition(4, 10),
-      GridPosition(4, 12),
+      GridPosition(1.5, 10.5),
+      GridPosition(1.5, 12.5),
+      GridPosition(3.5, 10.5),
+      GridPosition(3.5, 12.5),
     ],
     PlayerColor.yellow: <GridPosition>[
-      GridPosition(10, 10),
-      GridPosition(10, 12),
-      GridPosition(12, 10),
-      GridPosition(12, 12),
+      GridPosition(10.5, 10.5),
+      GridPosition(10.5, 12.5),
+      GridPosition(12.5, 10.5),
+      GridPosition(12.5, 12.5),
     ],
     PlayerColor.blue: <GridPosition>[
-      GridPosition(10, 2),
-      GridPosition(10, 4),
-      GridPosition(12, 2),
-      GridPosition(12, 4),
+      GridPosition(10.5, 1.5),
+      GridPosition(10.5, 3.5),
+      GridPosition(12.5, 1.5),
+      GridPosition(12.5, 3.5),
     ],
   };
 }

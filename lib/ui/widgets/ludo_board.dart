@@ -933,8 +933,8 @@ class _BoardPainter extends CustomPainter {
   Rect _cells(
     Rect inner,
     double cell, {
-    required int row,
-    required int col,
+    required num row,
+    required num col,
     int rows = 1,
     int cols = 1,
   }) {

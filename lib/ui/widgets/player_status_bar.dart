@@ -171,7 +171,7 @@ class _PlayerCardState extends State<_PlayerCard>
           scale: widget.isCurrent ? 1 + (pulse * 0.02) : 1,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 230),
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
