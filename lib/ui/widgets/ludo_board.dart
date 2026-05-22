@@ -123,7 +123,7 @@ class _LudoBoardState extends State<LudoBoard> {
                       ),
                       curve: Curves.easeOutCubic,
                       left: pawn.offset.dx - (cellSize * 0.37),
-                      top: pawn.offset.dy - (cellSize * 0.37),
+                      top: pawn.offset.dy - (cellSize * 0.8),
                       child: GestureDetector(
                         onTap: pawn.isMovable && widget.isLocalPlayersTurn
                             ? () => widget.onPawnTap(pawn.pawn.id)
@@ -386,65 +386,117 @@ class _PawnPieceState extends State<_PawnPiece>
       animation: _controller,
       builder: (BuildContext context, _) {
         final double pulse = 1 + (_controller.value * 0.08);
-        final Color depthTone = Color.lerp(widget.color, Colors.black, 0.28)!;
-        final Color highlightTone = Color.lerp(
-          widget.color,
-          Colors.white,
-          0.38,
-        )!;
 
         return Transform.scale(
           scale: widget.highlight ? pulse : 1,
-          child: Container(
+          child: SizedBox(
             width: widget.diameter,
-            height: widget.diameter,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: <Color>[highlightTone, widget.color, depthTone],
-                stops: const <double>[0.05, 0.6, 1],
-                center: const Alignment(-0.32, -0.34),
-                radius: 1.05,
-              ),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.92),
-                width: 2.3,
-              ),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.38),
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
-                ),
-                BoxShadow(
-                  color: widget.highlight
-                      ? widget.color.withValues(alpha: 0.52)
-                      : Colors.black26,
-                  blurRadius: widget.highlight ? 13 : 6,
-                  spreadRadius: widget.highlight ? 1.8 : 0.3,
-                ),
-              ],
-            ),
-            child: Align(
-              alignment: const Alignment(-0.16, -0.22),
-              child: Container(
-                width: widget.diameter * 0.42,
-                height: widget.diameter * 0.42,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: <Color>[
-                      Colors.white.withValues(alpha: 0.74),
-                      Colors.white.withValues(alpha: 0),
-                    ],
-                  ),
-                ),
+            height: widget.diameter * 1.4,
+            child: CustomPaint(
+              painter: _PawnPainter(
+                color: widget.color,
+                highlight: widget.highlight,
               ),
             ),
           ),
         );
       },
     );
+  }
+}
+
+class _PawnPainter extends CustomPainter {
+  _PawnPainter({required this.color, required this.highlight});
+  final Color color;
+  final bool highlight;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double w = size.width;
+    final double h = size.height;
+
+    final Color darkColor = Color.lerp(color, Colors.black, 0.4)!;
+    final Color lightColor = Color.lerp(color, Colors.white, 0.6)!;
+
+    // Shadow
+    canvas.drawOval(
+      Rect.fromCenter(
+          center: Offset(w * 0.5, h * 0.95), width: w * 0.8, height: h * 0.25),
+      Paint()
+        ..color = Colors.black.withValues(alpha: 0.4)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+    );
+
+    if (highlight) {
+      canvas.drawOval(
+        Rect.fromCenter(
+            center: Offset(w * 0.5, h * 0.95), width: w * 1.2, height: h * 0.4),
+        Paint()
+          ..color = color.withValues(alpha: 0.5)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+      );
+    }
+
+    // Gradient for the cylindrical/spherical parts
+    final Paint basePaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: [darkColor, color, lightColor, color, darkColor],
+        stops: const [0.0, 0.2, 0.5, 0.8, 1.0],
+      ).createShader(Rect.fromLTWH(0, 0, w, h));
+
+    // Base bottom
+    final Path basePath = Path()
+      ..moveTo(w * 0.15, h * 0.85)
+      ..quadraticBezierTo(w * 0.5, h * 1.0, w * 0.85, h * 0.85)
+      ..lineTo(w * 0.85, h * 0.75)
+      ..quadraticBezierTo(w * 0.5, h * 0.9, w * 0.15, h * 0.75)
+      ..close();
+    canvas.drawPath(basePath, basePaint);
+
+    // Body (stem)
+    final Path bodyPath = Path()
+      ..moveTo(w * 0.25, h * 0.75)
+      ..quadraticBezierTo(w * 0.4, h * 0.5, w * 0.4, h * 0.4)
+      ..lineTo(w * 0.6, h * 0.4)
+      ..quadraticBezierTo(w * 0.6, h * 0.5, w * 0.75, h * 0.75)
+      ..quadraticBezierTo(w * 0.5, h * 0.88, w * 0.25, h * 0.75)
+      ..close();
+    canvas.drawPath(bodyPath, basePaint);
+
+    // Collar
+    canvas.drawOval(
+      Rect.fromCenter(
+          center: Offset(w * 0.5, h * 0.4), width: w * 0.5, height: h * 0.15),
+      basePaint,
+    );
+
+    // Head
+    final Paint headPaint = Paint()
+      ..shader = RadialGradient(
+        center: const Alignment(-0.3, -0.3),
+        radius: 0.8,
+        colors: [lightColor, color, darkColor],
+        stops: const [0.0, 0.6, 1.0],
+      ).createShader(Rect.fromCenter(
+          center: Offset(w * 0.5, h * 0.25), width: w * 0.5, height: h * 0.5));
+
+    canvas.drawCircle(Offset(w * 0.5, h * 0.25), w * 0.25, headPaint);
+
+    // Head highlight reflection
+    canvas.drawOval(
+      Rect.fromCenter(
+          center: Offset(w * 0.4, h * 0.15), width: w * 0.15, height: h * 0.1),
+      Paint()
+        ..color = Colors.white.withValues(alpha: 0.6)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _PawnPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.highlight != highlight;
   }
 }
 

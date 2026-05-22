@@ -266,12 +266,15 @@ class _PlayerCardState extends State<_PlayerCard>
                             color: textColor.withValues(alpha: 0.92),
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            'Score : $score',
-                            style: TextStyle(
-                              color: subtitleColor,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 11,
+                          Expanded(
+                            child: Text(
+                              'Score : $score',
+                              style: TextStyle(
+                                color: subtitleColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
