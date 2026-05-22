@@ -18,7 +18,7 @@ class PlayerStatusBar extends StatelessWidget {
     required this.canRoll,
     required this.rowSlots,
     required this.onRoll,
-  }) : assert(rowSlots.length == 2);
+  });
 
   final GameState state;
   final int? localPlayerIndex;

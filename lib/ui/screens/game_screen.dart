@@ -61,62 +61,10 @@ class GameScreen extends StatelessWidget {
                             onExit: () => _leaveGame(context),
                           ),
                           const SizedBox(height: 10),
-                          PlayerStatusBar(
-                            state: state,
-                            localPlayerIndex: controller.localPlayerIndex,
-                            diceValue: state.diceValue,
-                            isRolling: state.isRolling,
-                            isLocalPlayersTurn: controller.isLocalPlayersTurn,
-                            canRoll: controller.canRoll,
-                            rowSlots: const <int>[0, 1],
-                            onRoll: controller.rollDice,
-                          ),
-                          const SizedBox(height: 10),
-                          Expanded(
-                            child: Center(
-                              child: LayoutBuilder(
-                                builder:
-                                    (
-                                      BuildContext context,
-                                      BoxConstraints constraints,
-                                    ) {
-                                      final double maxBoard = math.min(
-                                        constraints.maxWidth,
-                                        constraints.maxHeight,
-                                      );
-
-                                      return ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: math.min(680, maxBoard),
-                                        ),
-                                        child: LudoBoard(
-                                          state: state,
-                                          gameService:
-                                              controller.localGameService,
-                                          isLocalPlayersTurn:
-                                              controller.isLocalPlayersTurn,
-                                          onPawnTap: (String pawnId) {
-                                            controller.movePawn(pawnId);
-                                          },
-                                        ),
-                                      );
-                                    },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          PlayerStatusBar(
-                            state: state,
-                            localPlayerIndex: controller.localPlayerIndex,
-                            diceValue: state.diceValue,
-                            isRolling: state.isRolling,
-                            isLocalPlayersTurn: controller.isLocalPlayersTurn,
-                            canRoll: controller.canRoll,
-                            rowSlots: const <int>[2, 3],
-                            onRoll: controller.rollDice,
-                          ),
-                          const SizedBox(height: 10),
-                          const SizedBox.shrink(),
+                          if (state.players.length == 2)
+                            _buildTwoPlayerLayout(state, controller)
+                          else
+                            _buildFourPlayerLayout(state, controller),
                         ],
                       ),
                     ),
@@ -146,6 +94,134 @@ class GameScreen extends StatelessWidget {
       case GameMode.wifiClient:
         return 'Ludo Wi-Fi (Client)';
     }
+  }
+
+  Widget _buildTwoPlayerLayout(GameState state, GameController controller) {
+    return Expanded(
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: PlayerStatusBar(
+                  state: state,
+                  localPlayerIndex: controller.localPlayerIndex,
+                  diceValue: state.diceValue,
+                  isRolling: state.isRolling,
+                  isLocalPlayersTurn: controller.isLocalPlayersTurn,
+                  canRoll: controller.canRoll,
+                  rowSlots: const <int>[0],
+                  onRoll: controller.rollDice,
+                ),
+              ),
+              const Expanded(child: SizedBox.shrink()),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: Center(
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final double maxBoard = math.min(
+                    constraints.maxWidth,
+                    constraints.maxHeight,
+                  );
+
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: math.min(680, maxBoard),
+                    ),
+                    child: LudoBoard(
+                      state: state,
+                      gameService: controller.localGameService,
+                      isLocalPlayersTurn: controller.isLocalPlayersTurn,
+                      onPawnTap: (String pawnId) {
+                        controller.movePawn(pawnId);
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: <Widget>[
+              const Expanded(child: SizedBox.shrink()),
+              Expanded(
+                child: PlayerStatusBar(
+                  state: state,
+                  localPlayerIndex: controller.localPlayerIndex,
+                  diceValue: state.diceValue,
+                  isRolling: state.isRolling,
+                  isLocalPlayersTurn: controller.isLocalPlayersTurn,
+                  canRoll: controller.canRoll,
+                  rowSlots: const <int>[1],
+                  onRoll: controller.rollDice,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFourPlayerLayout(GameState state, GameController controller) {
+    return Expanded(
+      child: Column(
+        children: <Widget>[
+          PlayerStatusBar(
+            state: state,
+            localPlayerIndex: controller.localPlayerIndex,
+            diceValue: state.diceValue,
+            isRolling: state.isRolling,
+            isLocalPlayersTurn: controller.isLocalPlayersTurn,
+            canRoll: controller.canRoll,
+            rowSlots: const <int>[0, 1],
+            onRoll: controller.rollDice,
+          ),
+          const SizedBox(height: 10),
+          Expanded(
+            child: Center(
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  final double maxBoard = math.min(
+                    constraints.maxWidth,
+                    constraints.maxHeight,
+                  );
+
+                  return ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: math.min(680, maxBoard),
+                    ),
+                    child: LudoBoard(
+                      state: state,
+                      gameService: controller.localGameService,
+                      isLocalPlayersTurn: controller.isLocalPlayersTurn,
+                      onPawnTap: (String pawnId) {
+                        controller.movePawn(pawnId);
+                      },
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          PlayerStatusBar(
+            state: state,
+            localPlayerIndex: controller.localPlayerIndex,
+            diceValue: state.diceValue,
+            isRolling: state.isRolling,
+            isLocalPlayersTurn: controller.isLocalPlayersTurn,
+            canRoll: controller.canRoll,
+            rowSlots: const <int>[2, 3],
+            onRoll: controller.rollDice,
+          ),
+        ],
+      ),
+    );
   }
 }
 
